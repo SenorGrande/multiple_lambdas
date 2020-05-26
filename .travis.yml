@@ -1,0 +1,21 @@
+language: python
+python:
+- '3.6'
+branches:
+  only: master
+install:
+- pip install awscli
+- pip install aws-sam-cli
+script:
+- sam build -t sam-app/template.yaml
+- sam package --template-file .aws-sam/build/template.yaml --s3-bucket multiple-lambdas --output-template-file multiple-lambdas/packaged.yaml
+deploy:
+  - provider: script
+    script: sam deploy --template-file multiple-lambdas/packaged.yaml --capabilities CAPABILITY_IAM --stack-name multiple-lambdas-stack
+    skip_cleanup: true
+
+env:
+  global:
+  - AWS_DEFAULT_REGION=ap-southeast-2
+  - AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY
+  - AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY
